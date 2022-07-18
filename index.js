@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const cors = require("cors");
 const app = express();
@@ -32,6 +32,41 @@ async function run() {
       const result = await teamColection.find({}).toArray();
       res.send(result);
     });
+    //pos
+
+    app.post("/members", async (req, res) => {
+      const newData = req.body;
+      const result = await teamColection.insertOne(newData);
+      res.send(result);
+    });
+    //delete
+
+    app.delete("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const querry = { _id: ObjectId(id) };
+      const result = await teamColection.deleteOne(querry)
+      res.send(result);
+    });
+
+    //put
+
+    app.put("/members/:id", async (req, res) => {
+      const id = req.params;
+      const user = req.body;
+      const options = { upsert: true };
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await teamColection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
   } finally {
     //   await client.close();
   }
